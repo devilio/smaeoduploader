@@ -73,11 +73,12 @@ def upload_data(data_file,key,id,r):
 def main():
     today = datetime.date.today().strftime("%Y%m%d")
     rev = False
+    ext = False
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "d:r")
+        opts, args = getopt.getopt(sys.argv[1:], "d:re")
     except getopt.GetoptError, err:
         print str(err) 
-        print "usage: prog -d yyyymmdd"
+        print "usage: prog -d yyyymmdd {default: today} -e {extract from plant, default: No} -r {reverse data during load, default: No}"
         sys.exit(2)
 
     for o, a in opts:
@@ -85,10 +86,12 @@ def main():
             today = a
         elif o == "-r":
             rev = True
-    
-    eod_extract(today,se_path,se_plant_data_file,data_path)
-    ##
-    print "complete extract data for: %s" % today
+        elif o == "-e":
+            ext = True
+
+    if ext:
+        eod_extract(today,se_path,se_plant_data_file,data_path)
+        print "complete extract data for: %s" % today
     
     ## data file name with full path
     data_file = data_path + "/" + sys_name + "-" + today + ".csv"
