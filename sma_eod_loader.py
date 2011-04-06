@@ -90,7 +90,7 @@ def main():
             rev = True
         elif o == "-e":
             ext = True
-
+    print today
     if ext:
         eod_extract(today,se_path,se_plant_data_file,data_path)
         print "complete extract data for: %s" % today
