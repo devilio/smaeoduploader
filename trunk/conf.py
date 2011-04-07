@@ -16,5 +16,10 @@ key = "18ce5a22cdd0903357cf57d268375bb3b92cd84e"
 ## pvoutput.org system ID
 id = 1405
 
-## 30 seconds
-sleep_time = 30
+## 30 seconds -- can't finish
+sleep_time = 35
+## upload interval
+upload_interval = ('00','10','20','30','40','50')
+
+#sleep_time = 50
+#upload_interval = ('00','05','10','15','20','25','30','35','40','45','50','55')
