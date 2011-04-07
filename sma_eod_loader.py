@@ -51,8 +51,8 @@ def upload_data(data_file,key,id,r):
 
     ## upload SMA data to pvoutput.org
     for i in sma_data:
-                ## filter only for 10 mins interval
-                if i[1][3:5] in ('00','10','20','30','40','50'):
+                ## filter based on upload interval
+                if i[1][3:5] in upload_interval:
                         print i
                         try:
                                 subprocess.check_call(["curl.exe",\
