@@ -17,11 +17,11 @@ key = "18ce5a22cdd0903357cf57d268375bb3b92cd84e"
 id = 1405
 
 ## 30 seconds -- can't finish
-sleep_time = 35
+#sleep_time = 40
 ## upload interval
 #upload_interval = ('0')
-upload_interval = ('5')
+#upload_interval = ('5')
 
-#sleep_time = 50
-#upload_interval = ('0','5')
+sleep_time = 70
+upload_interval = ('0','5')
 
