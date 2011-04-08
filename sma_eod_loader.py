@@ -116,13 +116,15 @@ def bulk_update(init_energy,data,key,id):
     """
     _data = "data="
     for i in data:
-        _data = _data + "%s,%s,%f,%f;" %(i[0],i[1],round((i[2] - init_energy)*1000),round(i[3] * 1000))
+        item = "%s,%s,%f,%f;" %(i[0],i[1],round((i[2] - init_energy)*1000),round(i[3] * 1000)) 
+        print item
+        _data = _data + item
     #print data
-    print _data
+    print "batch uploading..."
     try:
             subprocess.check_call(["curl.exe",\
-                        "--trace",\
-                        " trace.log",\
+                        #"--trace",\
+                        #" trace.log",\
                         "-d", _data, \
                         "-H", "X-Pvoutput-Apikey:%s" % key,\
                         "-H", "X-Pvoutput-SystemId:%d" % id,\
