@@ -71,7 +71,67 @@ def upload_data(data_file,key,id,r):
                                 print "error: " + subprocess.STDOUT
                                 break
 
+def batch_upload_data(data_file,key,id,r):
+    """
+     load  SMA data from data file and upload into www.pvoutput.org
+    """
+    count = 0
+    index = 0
+    found = 0
+    start_energy = 0
+    sma_data = []
+    reader = csv.reader(open(data_file,"r"),delimiter=";")
 
+    ## load SMA data in single run
+    for i in reader:
+                count = count + 1
+                ## a, ignore 1st 9 lines
+                ##print i
+                if count > 9 and float(i[2]) > 0:
+                        sma_data.append( (i[0][6:10] + i[0][3:5] + i[0][0:2], i[0][11:16], float(i[1]),float(i[2]) ) )
+                        index = index + 1
+                ## b, found the start energy
+                if count > 9 and float(i[2]) == 0 and found == 0:
+                            start_energy = float(i[1])
+                            found = 1
+                            print start_energy
+
+    ## reverse data
+    if r:
+        sma_data.reverse()
+    _tmp = []
+    
+    for i in sma_data:
+        _tmp.append(i)
+        if len(_tmp) == 10:
+            bulk_update(start_energy,_tmp,key,id)
+            del _tmp[0:]
+    
+    if len(_tmp) > 0:
+        bulk_update(start_energy,_tmp,key,id)
+
+        
+def bulk_update(init_energy,data,key,id):
+    """
+    """
+    _data = "data="
+    for i in data:
+        _data = _data + "%s,%s,%f,%f;" %(i[0],i[1],round((i[2] - init_energy)*1000),round(i[3] * 1000))
+    #print data
+    print _data
+    try:
+            subprocess.check_call(["curl.exe",\
+                        "--trace",\
+                        " trace.log",\
+                        "-d", _data, \
+                        "-H", "X-Pvoutput-Apikey:%s" % key,\
+                        "-H", "X-Pvoutput-SystemId:%d" % id,\
+                        "http://pvoutput.org/service/r1/addbatchstatus.jsp"])
+            ## sleep here, required by www.pvoutput.org
+            time.sleep(sleep_time)
+    except subprocess.CalledProcessError:
+            print subprocess.STDOUT   
+                                
 def main():
     today = datetime.date.today().strftime("%Y%m%d")
     rev = False
@@ -99,7 +159,8 @@ def main():
     data_file = data_path + "/" + sys_name + "-" + today + ".csv"
     print "upload...  " + data_file
     ##
-    upload_data(data_file,key,id,rev)
+    #upload_data(data_file,key,id,rev)
 
+    batch_upload_data(data_file,key,id,rev)
 if __name__ == "__main__":
     main()
