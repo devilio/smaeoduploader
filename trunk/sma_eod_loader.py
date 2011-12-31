@@ -1,9 +1,9 @@
 import csv
 import time
 import datetime
-import subprocess
 import getopt
 import sys
+import urllib2
 
 ## global variables
 from conf import *
@@ -103,7 +103,7 @@ def batch_upload_data(data_file,key,id,r):
     
     for i in sma_data:
         _tmp.append(i)
-        if len(_tmp) == 10:
+        if len(_tmp) == 15:
             bulk_update(start_energy,_tmp,key,id)
             del _tmp[0:]
     
@@ -111,35 +111,33 @@ def batch_upload_data(data_file,key,id,r):
         bulk_update(start_energy,_tmp,key,id)
 
         
-def bulk_update(init_energy,data,key,id):
+def bulk_update(init_energy,data,_key,_id):
     """
     """
     _data = "data="
     for i in data:
-        item = "%s,%s,%f,%f;" %(i[0],i[1],round((i[2] - init_energy)*1000),round(i[3] * 1000)) 
+        item = "%s,%s,%d,%d;" %(i[0],i[1],round((i[2] - init_energy)*1000),round(i[3] * 1000)) 
         print item
         _data = _data + item
     #print data
     print "batch uploading..."
-    try:
-            subprocess.check_call(["curl.exe",\
-                        #"--trace",\
-                        #" trace.log",\
-                        "-d", _data, \
-                        "-H", "X-Pvoutput-Apikey:%s" % key,\
-                        "-H", "X-Pvoutput-SystemId:%d" % id,\
-                        "http://pvoutput.org/service/r1/addbatchstatus.jsp"])
-            ## sleep here, required by www.pvoutput.org
-            time.sleep(sleep_time)
-    except subprocess.CalledProcessError:
-            print subprocess.STDOUT   
-                                
+    # using urllib2 to post data
+    _header = {'X-Pvoutput-Apikey':  key, 'X-Pvoutput-SystemId' : id}
+    _url = 'http://pvoutput.org/service/r2/addbatchstatus.jsp'
+    request = urllib2.Request(_url, _data, _header)
+    opener = urllib2.build_opener(urllib2.HTTPHandler(debuglevel=0))
+    #print request
+    response = opener.open(request)
+    print response.read()
+    time.sleep(sleep_time)
+
 def main():
     today = datetime.date.today().strftime("%Y%m%d")
     rev = False
     ext = False
+  
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "d:re")
+        opts, args = getopt.getopt(sys.argv[1:], 'erd:')
     except getopt.GetoptError, err:
         print str(err) 
         print "usage: prog -d yyyymmdd {default: today} -e {extract from plant, default: No} -r {reverse data during load, default: No}"
